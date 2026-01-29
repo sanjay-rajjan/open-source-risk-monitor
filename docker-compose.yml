@@ -12,11 +12,33 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+
+  spark-master:
+    image: apache/spark:3.5.8-scala2.12-java11-python3-r-ubuntu
+    container_name: oss-risk-spark-master
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    environment:
+      - SPARK_NO_DAEMONIZE=true
+    volumes:
+      - ./data:/data
+      - ./src:/app
+
+  spark-worker:
+    image: apache/spark:3.5.8-scala2.12-java11-python3-r-ubuntu
+    container_name: oss-risk-spark-worker
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_NO_DAEMONIZE=true
+      - SPARK_WORKER_MEMORY=${SPARK_WORKER_MEMORY:-4G}
+      - SPARK_WORKER_CORES=${SPARK_WORKER_CORES:-2}
+    volumes:
+      - ./data:/data
+      - ./src:/app
 
 volumes:
   postgres_data:
