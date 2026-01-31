@@ -8,9 +8,6 @@ db_name = os.getenv("POSTGRES_DB")
 db_user = os.getenv("POSTGRES_USER")
 db_password = os.getenv("POSTGRES_PASSWORD")
 
-if None in [db_host, db_port, db_name, db_user, db_password]:
-    raise ValueError("Missing required environment variables.")
-
 spark = SparkSession.builder.appName("CalculateRepoBaselines").getOrCreate()
 
 push_events = spark.read.json("/data/raw/github-archive/2024-12-01-0.json")
@@ -29,7 +26,6 @@ baselines = push_events.groupBy("repo").agg(
 
 baselines.show(10, truncate=False)
 print(f"\nTotal repos analyzed: {baselines.count()}")
-
 
 jdbc_url = f"jdbc:postgresql://{db_host}:{db_port}/{db_name}"
 connection_properties = {
