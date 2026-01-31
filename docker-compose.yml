@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15
@@ -14,31 +12,45 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   spark-master:
-    image: apache/spark:3.5.8-scala2.12-java11-python3-r-ubuntu
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
     container_name: oss-risk-spark-master
     command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
     ports:
       - "8080:8080"
       - "7077:7077"
     environment:
-      - SPARK_NO_DAEMONIZE=true
+      - POSTGRES_HOST=oss-risk-postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - ./data:/data
       - ./src:/app
+    depends_on:
+      - postgres
 
   spark-worker:
-    image: apache/spark:3.5.8-scala2.12-java11-python3-r-ubuntu
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
     container_name: oss-risk-spark-worker
     command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
-    depends_on:
-      - spark-master
     environment:
-      - SPARK_NO_DAEMONIZE=true
-      - SPARK_WORKER_MEMORY=${SPARK_WORKER_MEMORY:-4G}
-      - SPARK_WORKER_CORES=${SPARK_WORKER_CORES:-2}
+      - SPARK_WORKER_MEMORY=4G
+      - SPARK_WORKER_CORES=2
+      - POSTGRES_HOST=oss-risk-postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - ./data:/data
       - ./src:/app
+    depends_on:
+      - spark-master
 
 volumes:
   postgres_data:

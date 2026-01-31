@@ -3,7 +3,7 @@ from pyspark.sql.functions import col
 
 spark = SparkSession.builder.appName("ExtractActivityEvents").getOrCreate()
 
-df = spark.read.json("/data/raw/github-archive/2024-12-01-0.json")
+df = spark.read.json("data/raw/github-archive/2024-12-01-0.json")
 
 issues_and_prs = df.filter((col("type") == "IssuesEvent") | (col("type") == "PullRequestEvent"))
 

@@ -2,7 +2,7 @@ from pyspark.sql import SparkSession
 
 spark = SparkSession.builder.appName("LoadGithubData").getOrCreate()
 
-df = spark.read.json("/data/raw/github-archive/2024-12-01-0.json")
+df = spark.read.json("data/raw/github-archive/2024-12-01-0.json")
 
 df.printSchema()
 

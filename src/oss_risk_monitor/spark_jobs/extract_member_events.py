@@ -3,7 +3,7 @@ from pyspark.sql.functions import col
 
 spark = SparkSession.builder.appName("ExtractMemberEvents").getOrCreate()
 
-df = spark.read.json("/data/raw/github-archive/2024-12-01-0.json")
+df = spark.read.json("data/raw/github-archive/2024-12-01-0.json")
 
 member_events = df.filter(col("type") == "MemberEvent")
 

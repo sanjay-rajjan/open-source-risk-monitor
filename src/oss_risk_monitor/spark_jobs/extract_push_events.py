@@ -3,7 +3,7 @@ from pyspark.sql.functions import col, hour, to_timestamp
 
 spark = SparkSession.builder.appName("ExtractPushEvents").getOrCreate()
 
-df = spark.read.json("/data/raw/github-archive/2024-12-01-0.json")
+df = spark.read.json("data/raw/github-archive/2024-12-01-0.json")
 
 push_events = df.filter(col("type") == "PushEvent")
 

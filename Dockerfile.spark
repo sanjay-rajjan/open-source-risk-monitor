@@ -1,0 +1,9 @@
+FROM apache/spark:3.5.8-scala2.12-java11-python3-r-ubuntu
+
+USER root
+
+RUN curl -L -o /opt/spark/jars/postgresql-42.7.9.jar \
+    https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.9/postgresql-42.7.9.jar && \
+    chmod 644 /opt/spark/jars/postgresql-42.7.9.jar
+
+USER spark
